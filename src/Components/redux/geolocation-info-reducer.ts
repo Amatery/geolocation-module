@@ -1,5 +1,5 @@
 import {ThunkAction} from "redux-thunk";
-import {getAddressApi} from "../../api/api";
+import {getAddressApi} from "../../api/GeoData-api";
 import {AppStateType, InferActionTypes} from "./store";
 
 type ActionTypes = InferActionTypes<typeof action>
@@ -11,8 +11,8 @@ type ThunkType = ThunkAction<void, AppStateType, unknown, ActionTypes>
 // }
 
 const initialState = {
-    latitude: null as null | string,
-    longitude: null as null | string,
+    latitude: '' ,
+    longitude: '' ,
     userAddress: {
         description: '',
         name: ''

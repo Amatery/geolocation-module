@@ -1,10 +1,12 @@
 import {applyMiddleware, combineReducers, createStore} from "redux";
 import {GeolocationReducer} from "./geolocation-info-reducer";
 import thunk from "redux-thunk";
+import {WeatherReducer} from "./weather-reducer";
 
 
 const rootReducer = combineReducers({
-    geolocationReducer: GeolocationReducer
+    geolocationReducer: GeolocationReducer,
+    weatherReducer: WeatherReducer
 });
 
 

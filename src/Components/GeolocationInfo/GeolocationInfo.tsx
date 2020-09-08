@@ -57,7 +57,7 @@ const GeolocationInfo = () => {
                 {/*<button onClick={getLocation}>Get coordinates</button>*/}
                 <p>Latitude: {latitude}</p>
                 <p>Longitude: {longitude}</p>
-                <p>Address: {name}, {description}</p>
+                <p>Address: {name} {description}</p>
             </div>
         </div>
     )
