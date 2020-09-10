@@ -13,8 +13,8 @@ export const WeatherReducer = (state: InitialStateType = initialState, action: A
         case 'GET_WEATHER': {
             return {
                 ...state,
-                weather: action.weather.map((item: WeatherDataType) => ({...item})),
-                main: {...action.main}
+                weather: action.weather,
+                main: action.main
             }
         }
         default:
@@ -26,7 +26,7 @@ const action = {
     getWeatherSuccess: (weather: Array<WeatherDataType>, main: MainDataType) => ({
         type: 'GET_WEATHER',
         weather, main
-    } as const)
+    } as const),
 };
 
 export const getWeather = (lat: string, lon: string): ThunkType => async (dispatch) => {

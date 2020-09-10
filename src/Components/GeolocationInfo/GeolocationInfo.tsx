@@ -9,20 +9,23 @@ const GeolocationInfo = () => {
     const dispatch = useDispatch();
 
     const {latitude, longitude} = useSelector((state: AppStateType) => state.geolocationReducer);
-
     const {description, name} = useSelector((state: AppStateType) => state.geolocationReducer.userAddress);
 
 
-    const getLocation = () => {
+    // const getLocation = () => {
+    //     if (navigator.geolocation) {
+    //         navigator.geolocation.getCurrentPosition(getCoordinates, handleLocationError);
+    //     } else {
+    //         alert('Geolocation is not supported by this browser.');
+    //     }
+    // };
+
+    useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(getCoordinates, handleLocationError);
         } else {
             alert('Geolocation is not supported by this browser.');
         }
-    };
-
-    useEffect(() => {
-        getLocation();
     }, []);
 
     const getCoordinates = (position: any) => {
@@ -54,7 +57,6 @@ const GeolocationInfo = () => {
         <div>
             <div>
                 <h2>React Geolocation</h2>
-                {/*<button onClick={getLocation}>Get coordinates</button>*/}
                 <p>Latitude: {latitude}</p>
                 <p>Longitude: {longitude}</p>
                 <p>Address: {name} {description}</p>
