@@ -2,21 +2,19 @@ import {ThunkAction} from "redux-thunk";
 import {getAddressApi} from "../../api/GeoData-api";
 import {AppStateType, InferActionTypes} from "./store";
 
+
 type ActionTypes = InferActionTypes<typeof action>
 type ThunkType = ThunkAction<void, AppStateType, unknown, ActionTypes>
 
-// type UserAddress = {
-//     description: string,
-//     name: string
-// }
 
 const initialState = {
-    latitude: '' ,
-    longitude: '' ,
+    latitude: '',
+    longitude: '',
     userAddress: {
         description: '',
         name: ''
-    }
+    },
+    isFetching: false as boolean
 };
 
 type InitialStateType = typeof initialState;
@@ -49,16 +47,21 @@ export const action = {
     getUserAddressSuccess: (userAddress: any) => ({
         type: 'GET_USER_ADDRESS',
         userAddress
+    } as const),
+    toggleIsFetchingSuccess: (isFetching: boolean) => ({
+        type: 'IS_FETCHING',
+        isFetching
     } as const)
 };
 
 
 export const getAddress = (longitude: any, latitude: any): ThunkType => async (dispatch) => {
+    await dispatch(action.toggleIsFetchingSuccess(true));
     try {
         let data = await getAddressApi.getUserAddress(latitude, longitude);
         dispatch(action.getUserAddressSuccess(data.response.GeoObjectCollection.featureMember[0].GeoObject))
     } catch (e) {
         console.table(e.message)
     }
-
+    await dispatch(action.toggleIsFetchingSuccess(false));
 };

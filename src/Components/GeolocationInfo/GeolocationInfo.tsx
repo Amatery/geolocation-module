@@ -12,14 +12,6 @@ const GeolocationInfo = () => {
     const {description, name} = useSelector((state: AppStateType) => state.geolocationReducer.userAddress);
 
 
-    // const getLocation = () => {
-    //     if (navigator.geolocation) {
-    //         navigator.geolocation.getCurrentPosition(getCoordinates, handleLocationError);
-    //     } else {
-    //         alert('Geolocation is not supported by this browser.');
-    //     }
-    // };
-
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(getCoordinates, handleLocationError);

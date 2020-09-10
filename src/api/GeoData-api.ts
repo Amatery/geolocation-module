@@ -12,8 +12,3 @@ export const getAddressApi = {
     }
 };
 
-
-// getAddressApi.getUserAddress(longitude, latitude)
-//     .then(response => response.json())
-//     .then(data => console.log(data.response.GeoObjectCollection.featureMember))
-//     .catch(error => console.table(error))

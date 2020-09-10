@@ -11,10 +11,6 @@ const WeatherInfo = memo(() => {
     const main = useSelector<AppStateType, any>(state => state.weatherReducer.main);
     const dispatch = useDispatch();
 
-    // const clickHandler = () => {
-    //     dispatch(getWeather(latitude, longitude));
-    // };
-
 
     useEffect(() => {
         if (latitude && longitude) {
@@ -27,7 +23,7 @@ const WeatherInfo = memo(() => {
         <div>
             <div>
                 {weather.map((el: any) => {
-                    return <p>{main.temp} градусов, {el.description}</p>
+                    return <p>{main.temp}C{'\u00b0'}, {el.description}</p>
                 })}
             </div>
         </div>

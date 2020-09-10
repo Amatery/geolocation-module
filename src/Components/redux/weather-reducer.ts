@@ -5,7 +5,8 @@ import {WeatherApi} from "../../api/Weather-api";
 
 const initialState = {
     weather: [] as Array<WeatherDataType>,
-    main: {} as MainDataType
+    main: {} as MainDataType,
+    isFetching: false as boolean
 };
 
 export const WeatherReducer = (state: InitialStateType = initialState, action: ActionTypes) => {
@@ -15,6 +16,12 @@ export const WeatherReducer = (state: InitialStateType = initialState, action: A
                 ...state,
                 weather: action.weather,
                 main: action.main
+            }
+        }
+        case 'IS_FETCHING': {
+            return {
+                ...state,
+                isFetching: action.isFetching
             }
         }
         default:
@@ -27,15 +34,21 @@ const action = {
         type: 'GET_WEATHER',
         weather, main
     } as const),
+    toggleIsFetchingSuccess: (isFetching: boolean) => ({
+        type: 'IS_FETCHING',
+        isFetching
+    } as const)
 };
 
 export const getWeather = (lat: string, lon: string): ThunkType => async (dispatch) => {
+    await dispatch(action.toggleIsFetchingSuccess(true));
     try {
         let data = await WeatherApi.getWeather(lat, lon);
         dispatch(action.getWeatherSuccess(data.weather, data.main))
     } catch (e) {
         console.table(e.message)
     }
+    await dispatch(action.toggleIsFetchingSuccess(false));
 };
 
 
