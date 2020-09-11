@@ -19,6 +19,21 @@ const WeatherInfo = memo(() => {
     }, [latitude, longitude]);
 
 
+    const saveLsHandler = () => {
+        debugger
+        const weatherAsString = JSON.stringify(weather)
+        localStorage.setItem('weather data', weatherAsString)
+    }
+
+    const getLsHandler = () => {
+        debugger
+        const weatherFromLs = localStorage.getItem('weather data');
+        if (weatherFromLs) {
+            const loadedData = JSON.parse(weatherFromLs)
+        }
+    };
+
+
     return (
         <div>
             <div>
@@ -26,6 +41,8 @@ const WeatherInfo = memo(() => {
                     return <p>{main.temp}C{'\u00b0'}, {el.description}</p>
                 })}
             </div>
+            <button onClick={saveLsHandler}>save to ls</button>
+            <button onClick={getLsHandler}>get from ls</button>
         </div>
     )
 });

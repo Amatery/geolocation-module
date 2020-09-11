@@ -1,12 +1,15 @@
 import {AppStateType, InferActionTypes} from "./store";
 import {ThunkAction} from "redux-thunk";
 import {WeatherApi} from "../../api/Weather-api";
+import { Dispatch } from "redux";
 
 
 const initialState = {
     weather: [] as Array<WeatherDataType>,
     main: {} as MainDataType,
-    isFetching: false as boolean
+    isFetching: false as boolean,
+    weatherLS: [] as any,
+    mainLS: {} as any,
 };
 
 export const WeatherReducer = (state: InitialStateType = initialState, action: ActionTypes) => {
@@ -24,6 +27,12 @@ export const WeatherReducer = (state: InitialStateType = initialState, action: A
                 isFetching: action.isFetching
             }
         }
+        case 'WEATHER_LS': {
+            return{
+                ...state,
+                weatherLS: [...state.weatherLS, ...action.weatherLS]
+            }
+        }
         default:
             return state
     }
@@ -37,18 +46,38 @@ const action = {
     toggleIsFetchingSuccess: (isFetching: boolean) => ({
         type: 'IS_FETCHING',
         isFetching
-    } as const)
+    } as const),
+    weatherLSSuccess: (weatherLS: any) => ({
+        type: 'WEATHER_LS',
+        weatherLS
+    }as const)
 };
 
-export const getWeather = (lat: string, lon: string): ThunkType => async (dispatch) => {
-    await dispatch(action.toggleIsFetchingSuccess(true));
+export const getWeather = (lat: string, lon: string): ThunkType => async (dispatch: Dispatch, getState:()=>AppStateType) => {
+    debugger
+    dispatch(action.toggleIsFetchingSuccess(true));
+
+    let weatherDataParse =localStorage.getItem('weather data');
+    if (weatherDataParse) {
+        dispatch(action.weatherLSSuccess(JSON.parse(weatherDataParse)));
+    }
+
     try {
+        debugger
         let data = await WeatherApi.getWeather(lat, lon);
+
+        const weatherState = getState().weatherReducer.weatherLS;
+        localStorage.setItem('weather data',JSON.stringify([...weatherState, data.weather[0]]));
+
+        // localStorage.setItem('weather description', JSON.stringify(newWeatherData));
+
+
         dispatch(action.getWeatherSuccess(data.weather, data.main))
+
     } catch (e) {
         console.table(e.message)
     }
-    await dispatch(action.toggleIsFetchingSuccess(false));
+    dispatch(action.toggleIsFetchingSuccess(false));
 };
 
 
