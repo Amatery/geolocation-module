@@ -1,7 +1,7 @@
 import {AppStateType, InferActionTypes} from "./store";
 import {ThunkAction} from "redux-thunk";
 import {WeatherApi} from "../../api/Weather-api";
-import { Dispatch } from "redux";
+import {Dispatch} from "redux";
 
 
 const initialState = {
@@ -28,9 +28,15 @@ export const WeatherReducer = (state: InitialStateType = initialState, action: A
             }
         }
         case 'WEATHER_LS': {
-            return{
+            return {
                 ...state,
                 weatherLS: [...state.weatherLS, ...action.weatherLS]
+            }
+        }
+        case 'MAIN_LS': {
+            return {
+                ...state,
+                mainLS: action.mainLS
             }
         }
         default:
@@ -50,30 +56,32 @@ const action = {
     weatherLSSuccess: (weatherLS: any) => ({
         type: 'WEATHER_LS',
         weatherLS
+    } as const),
+    mainLSSuccess: (mainLS: any) => ({
+        type: 'MAIN_LS',
+        mainLS
     }as const)
 };
 
-export const getWeather = (lat: string, lon: string): ThunkType => async (dispatch: Dispatch, getState:()=>AppStateType) => {
-    debugger
+export const getWeather = (lat: string, lon: string): ThunkType => async (dispatch: Dispatch, getState: () => AppStateType) => {
     dispatch(action.toggleIsFetchingSuccess(true));
-
-    let weatherDataParse =localStorage.getItem('weather data');
+    let weatherDataParse = localStorage.getItem('weather data');
     if (weatherDataParse) {
         dispatch(action.weatherLSSuccess(JSON.parse(weatherDataParse)));
     }
-
+    let mainDataParse = localStorage.getItem('main data');
+    if(mainDataParse) {
+        dispatch(action.mainLSSuccess(JSON.parse(mainDataParse)));
+    }
     try {
         debugger
         let data = await WeatherApi.getWeather(lat, lon);
-
         const weatherState = getState().weatherReducer.weatherLS;
-        localStorage.setItem('weather data',JSON.stringify([...weatherState, data.weather[0]]));
-
-        // localStorage.setItem('weather description', JSON.stringify(newWeatherData));
-
-
-        dispatch(action.getWeatherSuccess(data.weather, data.main))
-
+        const mainState = getState().weatherReducer.mainLS;
+        localStorage.setItem('weather data', JSON.stringify([...weatherState, data.weather[0]]));
+        localStorage.setItem('main data', JSON.stringify((mainState)));
+        dispatch(action.getWeatherSuccess(data.weather, data.main));
+        debugger
     } catch (e) {
         console.table(e.message)
     }

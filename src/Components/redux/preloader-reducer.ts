@@ -2,7 +2,7 @@ import {InferActionTypes} from "./store";
 
 
 const initialState = {
-    isFetching: false
+    isFetching: false as boolean
 };
 
 
