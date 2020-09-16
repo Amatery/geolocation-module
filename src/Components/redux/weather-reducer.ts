@@ -9,7 +9,7 @@ const initialState = {
     main: {} as MainDataType,
     isFetching: false as boolean,
     weatherLS: [] as any,
-    mainLS: {} as any,
+    mainLS: [] as any,
 };
 
 export const WeatherReducer = (state: InitialStateType = initialState, action: ActionTypes) => {
@@ -36,7 +36,7 @@ export const WeatherReducer = (state: InitialStateType = initialState, action: A
         case 'MAIN_LS': {
             return {
                 ...state,
-                mainLS: action.mainLS
+                mainLS: [...state.mainLS, ...action.mainLS]
             }
         }
         default:
@@ -60,8 +60,9 @@ const action = {
     mainLSSuccess: (mainLS: any) => ({
         type: 'MAIN_LS',
         mainLS
-    }as const)
+    } as const)
 };
+
 
 export const getWeather = (lat: string, lon: string): ThunkType => async (dispatch: Dispatch, getState: () => AppStateType) => {
     dispatch(action.toggleIsFetchingSuccess(true));
@@ -70,18 +71,16 @@ export const getWeather = (lat: string, lon: string): ThunkType => async (dispat
         dispatch(action.weatherLSSuccess(JSON.parse(weatherDataParse)));
     }
     let mainDataParse = localStorage.getItem('main data');
-    if(mainDataParse) {
+    if (mainDataParse) {
         dispatch(action.mainLSSuccess(JSON.parse(mainDataParse)));
     }
     try {
-        debugger
         let data = await WeatherApi.getWeather(lat, lon);
         const weatherState = getState().weatherReducer.weatherLS;
         const mainState = getState().weatherReducer.mainLS;
         localStorage.setItem('weather data', JSON.stringify([...weatherState, data.weather[0]]));
-        localStorage.setItem('main data', JSON.stringify((mainState)));
+        localStorage.setItem('main data', JSON.stringify([...mainState, data.main.temp]));
         dispatch(action.getWeatherSuccess(data.weather, data.main));
-        debugger
     } catch (e) {
         console.table(e.message)
     }

@@ -1,10 +1,7 @@
 import {ThunkAction} from "redux-thunk";
 import {getAddressApi} from "../../api/GeoData-api";
 import {AppStateType, InferActionTypes} from "./store";
-
-
-type ActionTypes = InferActionTypes<typeof action>
-type ThunkType = ThunkAction<void, AppStateType, unknown, ActionTypes>
+import {Dispatch} from "redux";
 
 
 const initialState = {
@@ -14,10 +11,10 @@ const initialState = {
         description: '',
         name: ''
     },
-    isFetching: false as boolean
+    isFetching: false as boolean,
+    historyUserAddress: [] as any
 };
 
-type InitialStateType = typeof initialState;
 
 export const GeolocationReducer = (state: InitialStateType = initialState, action: ActionTypes) => {
     switch (action.type) {
@@ -32,6 +29,12 @@ export const GeolocationReducer = (state: InitialStateType = initialState, actio
             return {
                 ...state,
                 userAddress: action.userAddress
+            }
+        }
+        case 'HISTORY_USER_ADDRESS': {
+            return {
+                ...state,
+                historyUserAddress: [...state.historyUserAddress, ...action.historyUserAddress]
             }
         }
         default:
@@ -51,17 +54,32 @@ export const action = {
     toggleIsFetchingSuccess: (isFetching: boolean) => ({
         type: 'IS_FETCHING',
         isFetching
+    } as const),
+    historyUserAddressSuccess: (historyUserAddress: any) => ({
+        type: 'HISTORY_USER_ADDRESS',
+        historyUserAddress
     } as const)
 };
 
 
-export const getAddress = (longitude: any, latitude: any): ThunkType => async (dispatch) => {
-    await dispatch(action.toggleIsFetchingSuccess(true));
+export const getAddress = (longitude: any, latitude: any): ThunkType => async (dispatch: Dispatch, getState: () => AppStateType) => {
+    dispatch(action.toggleIsFetchingSuccess(true));
+    let userAddressParse = localStorage.getItem('user address');
+    if (userAddressParse) {
+        dispatch(action.historyUserAddressSuccess(JSON.parse(userAddressParse)))
+    }
     try {
         let data = await getAddressApi.getUserAddress(latitude, longitude);
-        dispatch(action.getUserAddressSuccess(data.response.GeoObjectCollection.featureMember[0].GeoObject))
+        const userAddressState = getState().geolocationReducer.historyUserAddress;
+        localStorage.setItem('user address', JSON.stringify([...userAddressState, data.response.GeoObjectCollection.featureMember[0]]));
+        dispatch(action.getUserAddressSuccess(data.response.GeoObjectCollection.featureMember[0].GeoObject));
     } catch (e) {
         console.table(e.message)
     }
-    await dispatch(action.toggleIsFetchingSuccess(false));
+    dispatch(action.toggleIsFetchingSuccess(false));
 };
+
+//Types
+type ActionTypes = InferActionTypes<typeof action>
+type ThunkType = ThunkAction<void, AppStateType, unknown, ActionTypes>
+type InitialStateType = typeof initialState;
