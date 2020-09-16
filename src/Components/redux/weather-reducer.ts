@@ -10,6 +10,7 @@ const initialState = {
     isFetching: false as boolean,
     weatherLS: [] as any,
     mainLS: [] as any,
+    dateTimeLS: [] as any
 };
 
 export const WeatherReducer = (state: InitialStateType = initialState, action: ActionTypes) => {
@@ -39,12 +40,18 @@ export const WeatherReducer = (state: InitialStateType = initialState, action: A
                 mainLS: [...state.mainLS, ...action.mainLS]
             }
         }
+        case 'DATE_TIME_LS': {
+            return {
+                ...state,
+                dateTimeLS: [...state.dateTimeLS, ...action.dateTimeLS]
+            }
+        }
         default:
             return state
     }
 };
 
-const action = {
+export const action = {
     getWeatherSuccess: (weather: Array<WeatherDataType>, main: MainDataType) => ({
         type: 'GET_WEATHER',
         weather, main
@@ -60,12 +67,29 @@ const action = {
     mainLSSuccess: (mainLS: any) => ({
         type: 'MAIN_LS',
         mainLS
-    } as const)
+    } as const),
+    dateTimeLSSuccess: (dateTimeLS: any) => ({
+        type: 'DATE_TIME_LS',
+        dateTimeLS
+    }as const)
 };
 
 
 export const getWeather = (lat: string, lon: string): ThunkType => async (dispatch: Dispatch, getState: () => AppStateType) => {
     dispatch(action.toggleIsFetchingSuccess(true));
+    let date = new Date();
+    let datesInfo = {
+        year:date.getFullYear(),
+        month: date.getMonth(),
+        day: date.getDate(),
+        hours: date.getHours(),
+        minutes: date.getMinutes()};
+
+    console.log(datesInfo)
+    let dateParse = localStorage.getItem('date data')
+    if(dateParse) {
+        dispatch(action.dateTimeLSSuccess(JSON.parse(dateParse)))
+    }
     let weatherDataParse = localStorage.getItem('weather data');
     if (weatherDataParse) {
         dispatch(action.weatherLSSuccess(JSON.parse(weatherDataParse)));
@@ -78,8 +102,10 @@ export const getWeather = (lat: string, lon: string): ThunkType => async (dispat
         let data = await WeatherApi.getWeather(lat, lon);
         const weatherState = getState().weatherReducer.weatherLS;
         const mainState = getState().weatherReducer.mainLS;
+        const dateState = getState().weatherReducer.dateTimeLS
         localStorage.setItem('weather data', JSON.stringify([...weatherState, data.weather[0]]));
         localStorage.setItem('main data', JSON.stringify([...mainState, data.main.temp]));
+        localStorage.setItem('date data', JSON.stringify([...dateState, datesInfo]))
         dispatch(action.getWeatherSuccess(data.weather, data.main));
     } catch (e) {
         console.table(e.message)
